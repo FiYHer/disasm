@@ -42,6 +42,14 @@
 *.idb
 *.pdb
 
+Debug
+Release
+*.lib
+*.exe
+*.dll
+
+
+
 # Kernel Module Compile Results
 *.mod*
 *.cmd
