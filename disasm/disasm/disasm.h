@@ -49,15 +49,15 @@
 #define TEXTLEN        256          
 
 // Special command features.【特殊命令功能】
-#define WW             0x01            // Bit W (size of operand)
-#define SS             0x02            // Bit S (sign extention of immediate)
-#define WS             0x03            // Bits W and S
-#define W3             0x08            // Bit W at position 3
-#define CC             0x10            // Conditional jump
-#define FF             0x20            // Forced 16-bit size
-#define LL             0x40            // Conditional loop
-#define PR             0x80            // Protected command
-#define WP             0x81            // I/O command with bit W
+#define WW             0x01            // Bit W (size of operand)【操作数大小】
+#define SS             0x02            // Bit S (sign extention of immediate)【立即的符号扩展】
+#define WS             0x03            // Bits W and S【操作数大小和立即的符号扩展】
+#define W3             0x08            // Bit W at position 3【操作数大小在位置3】
+#define CC             0x10            // Conditional jump【条件跳转】
+#define FF             0x20            // Forced 16-bit size【强制16位大小】
+#define LL             0x40            // Conditional loop【条件循环】
+#define PR             0x80            // Protected command【受保护的命令】
+#define WP             0x81            // I/O command with bit W【操作数大小的I/O命令】
 
 // All possible types of operands in 80x86. A bit more than you expected, he?
 #define NNN            0               // No operand
@@ -143,37 +143,42 @@ typedef unsigned short ushort;         // Unsigned short
 typedef unsigned int   uint;           // Unsigned integer
 typedef unsigned long  ulong;          // Unsigned long
 
-typedef struct t_addrdec {
-  int            defseg;
-  unsigned char           *descr;
+typedef struct t_addrdec 
+{
+	int            nDefSeg;
+	unsigned char  *uszDescr;
 } t_addrdec;
 
-typedef struct t_cmddata {
-  ulong          mask;                 // Mask for first 4 bytes of the command
-  ulong          code;                 // Compare masked bytes with this
-  unsigned char           len;                  // Length of the main command code
-  unsigned char           bits;                 // Special bits within the command
-  unsigned char           arg1,arg2,arg3;       // Types of possible arguments
-  unsigned char           type;                 // C_xxx + additional information
-  unsigned char           *name;                // Symbolic name for this command
+typedef struct t_cmddata 
+{
+	ulong          ulMask;               // Mask for first 4 bytes of the command【命令的前4个字节的掩码】
+	ulong          ulCode;               // Compare masked bytes with this【】
+	unsigned char  ucLen;                // Length of the main command code【主命令代码的长度】
+	unsigned char  ucBits;               // Special bits within the command【命令中的特殊位】
+	unsigned char  ucArg1;				 // Types of possible arguments1
+	unsigned char  ucArg2;				 // Types of possible arguments2
+	unsigned char  ucArg3;				 // Types of possible arguments3
+	unsigned char  ucType;               // C_xxx + additional information【附加信息】
+	unsigned char  *uszName;             // Symbolic name for this command【此命令的符号名】
 } t_cmddata;
 
-// Initialized constant data structures used by all programs from assembler
-// package. Contain names of register, register combinations or commands and
-// their properties.
-extern const unsigned char      *regname[3][9];
-extern const unsigned char      *segname[8];
-extern const unsigned char      *sizename[11];
-extern const t_addrdec addr16[8];
-extern const t_addrdec addr32[8];
-extern const unsigned char      *fpuname[9];
-extern const unsigned char      *mmxname[9];
-extern const unsigned char      *crname[9];
-extern const unsigned char      *drname[9];
-extern const unsigned char      *condition[16];
-extern const t_cmddata cmddata[];
-extern const t_cmddata vxdcmd;
-extern const t_cmddata dangerous[];
+/*Initialized constant data structures used by all programs from assembler
+ package. Contain names of register, register combinations or commands and
+ their properties.*/
+ /*【汇编程序中所有程序使用的初始化常量数据结构。包含寄存器、寄存器组合或命令的名称】*/
+extern const unsigned char      *cuszRegName[3][9];
+extern const unsigned char      *cuszSegName[8];
+extern const unsigned char      *cuszSizeName[11];
+extern const t_addrdec cstAddr16[8];
+extern const t_addrdec cstAddr32[8];
+extern const unsigned char      *cuszFPUName[9];
+extern const unsigned char      *cuszMMXName[9];
+extern const unsigned char      *cuszCRName[9];
+extern const unsigned char      *cuszDRName[9];
+extern const unsigned char      *cuszCondition[16];
+extern const t_cmddata cstCmdData[];
+extern const t_cmddata cstVxDCmd;
+extern const t_cmddata cstDangerous[];
 
 
 
@@ -268,6 +273,7 @@ extern const t_cmddata dangerous[];
 #define   DECR_3DNOW   0x2D            // 3Dnow! register【3Dnow!寄存器】
 #define DECR_ISREG     0x20            // Mask to check that operand is register【检查操作数是否为寄存器的掩码】
 
+// 反汇编模式
 #define DISASM_SIZE    0               // Determine command size only【仅确定命令大小】
 #define DISASM_DATA    1               // Determine size and analysis data【确定尺寸和分析数据】
 #define DISASM_FILE    3               // Disassembly, no symbols【反汇编，无符号】
@@ -285,66 +291,110 @@ extern const t_cmddata dangerous[];
 #define DAW_DANGER95   0x1000          // May mess up Win95 if executed【如果执行可能会有问题在Win95】
 #define DAW_DANGEROUS  0x3000          // May mess up any OS if executed【如果执行可能会有问题OS】
 
-typedef struct t_disasm {              // Results of disassembling【反汇编结果】
-  ulong          ip;                   // Instrucion pointer【指令指针】
-  unsigned char           dump[TEXTLEN];        // Hexadecimal dump of the command【命令的十六进制转储】
-  unsigned char           result[TEXTLEN];      // Disassembled command【汇编命令】
-  unsigned char           comment[TEXTLEN];     // Brief comment【简短描述】
-  int            cmdtype;              // One of C_xxx【类型】
-  int            memtype;              // Type of addressed variable in memory【内存中寻址变量的类型】
-  int            nprefix;              // Number of prefixes【前缀数】
-  int            indexed;              // Address contains register(s)【地址包含寄存器】
-  ulong          jmpconst;             // Constant jump address【常数跳转地址】
-  ulong          jmptable;             // Possible address of switch table【交换表的可能地址】
-  ulong          adrconst;             // Constant part of address【地址的固定部分】
-  ulong          immconst;             // Immediate constant【立即常数】
-  int            zeroconst;            // Whether contains zero constant【零常数】
-  int            fixupoffset;          // Possible offset of 32-bit fixups【32位修正的可能偏移量】
-  int            fixupsize;            // Possible total size of fixups or 0【可能的总尺寸】
-  int            error;                // Error while disassembling command【反汇编命令时出错】
-  int            warnings;             // Combination of DAW_xxx【出错信息】
+typedef struct t_disasm					 // Results of disassembling【反汇编结果】
+{				 
+	ulong          ulIp;                 // Instrucion pointer【指令指针】
+	unsigned char  uszDump[TEXTLEN];     // Hexadecimal dump of the command【命令的十六进制转储】
+	unsigned char  uszResult[TEXTLEN];   // Disassembled command【汇编命令】
+	unsigned char  uszComment[TEXTLEN];  // Brief comment【简短描述】
+	int            nCmdType;             // One of C_xxx【类型】
+	int            nMemType;             // Type of addressed variable in memory【内存中寻址变量的类型】
+	int            nPrefix;              // Number of prefixes【当前指令的前缀数目】
+	int            nIndexed;             // Address contains register(s)【地址包含寄存器】
+	ulong          ulJmpConst;           // Constant jump address【常数跳转地址】
+	ulong          ulJmpTable;           // Possible address of switch table【交换表的可能地址】
+	ulong          ulAddrconst;          // Constant part of address【地址的固定部分】
+	ulong          ulImmConst;           // Immediate constant【立即常数】
+	int            nZeroConst;           // Whether contains zero constant【零常数】
+	int            nFixUpOffset;         // Possible offset of 32-bit fixups【32位修正的可能偏移量】
+	int            nFixUpSize;           // Possible total size of fixups or 0【可能的总尺寸】
+	int            nError;               // Error while disassembling command【反汇编命令时出错】
+	int            nWarnings;            // Combination of DAW_xxx【出错信息】
 } t_disasm;
 
-typedef struct t_asmmodel {            // Model to search for assembler command
-  unsigned char           code[MAXCMDSIZE];     // Binary code
-  unsigned char           mask[MAXCMDSIZE];     // Mask for binary code (0: bit ignored)
-  int            length;               // Length of code, bytes (0: empty)
-  int            jmpsize;              // Offset size if relative jump
-  int            jmpoffset;            // Offset relative to IP
-  int            jmppos;               // Position of jump offset in command
+typedef struct t_asmmodel			 	 // Model to search for assembler command【寻找汇编命令的模型】
+{            
+	unsigned char  uszCode[MAXCMDSIZE];  // Binary code【二进制代码】
+	unsigned char  uszMask[MAXCMDSIZE];  // Mask for binary code (0: bit ignored)【二进制代码掩码】
+	int            nLength;              // Length of code, bytes (0: empty)【代码长度，字节】
+	int            nJmpSize;             // Offset size if relative jump【相对跳跃时的偏移大小】
+	int            nJmpOffset;           // Offset relative to IP【相对于IP的偏移量】
+	int            nJmpPos;              // Position of jump offset in command【命令中的跳转偏移位置】
 } t_asmmodel;
 
-unique int       ideal;                // Force IDEAL decoding mode
-unique int       lowercase;            // Force lowercase display
-unique int       tabarguments;         // Tab between mnemonic and arguments
-unique int       extraspace;           // Extra space between arguments
-unique int       putdefseg;            // Display default segments in listing
-unique int       showmemsize;          // Always show memory size
-unique int       shownear;             // Show NEAR modifiers
-unique int       shortstringcmds;      // Use short form of string commands
-unique int       sizesens;             // How to decode size-sensitive mnemonics
-unique int       symbolic;             // Show symbolic addresses in disasm
-unique int       farcalls;             // Accept far calls, returns & addresses
-unique int       decodevxd;            // Decode VxD calls (Win95/98)
-unique int       privileged;           // Accept privileged commands
-unique int       iocommand;            // Accept I/O commands
-unique int       badshift;             // Accept shift out of range 1..31
-unique int       extraprefix;          // Accept superfluous prefixes
-unique int       lockedbus;            // Accept LOCK prefixes
-unique int       stackalign;           // Accept unaligned stack operations
-unique int       iswindowsnt;          // When checking for dangers, assume NT
+unique int       g_nIdeal;               // Force IDEAL decoding mode【强制理想解码模式】
+unique int       g_nLowerCase;           // Force lowercase display【强制小写显示】
+unique int       g_nTabArguments;        // Tab between mnemonic and arguments【助记符和参数之间的制表符】
+unique int       g_nExtraSpace;          // Extra space between arguments【参数之间的额外空间】
+unique int       g_nPutDefSeg;           // Display default segments in listing【在列表中显示默认段】
+unique int       g_nShowMemSize;         // Always show memory size【始终显示内存大小】
+unique int       g_nShowNear;            // Show NEAR modifiers【显示附近的修改器】
+unique int       g_nShortStringCmds;     // Use short form of string commands【使用短格式的字符串命令】
+unique int       g_nSizeSens;            // How to decode size-sensitive mnemonics【如何解码大小敏感助记符】
+unique int       g_nSymbolic;            // Show symbolic addresses in disasm【在disasm中显示符号地址】
+unique int       g_nFarCalls;            // Accept far calls, returns & addresses【接受远调用、返回和地址】
+unique int       g_nDecodeVxD;           // Decode VxD calls (Win95/98)【解码vxd调用（win95/98）】
+unique int       g_nPrivileged;          // Accept privileged commands【接受特权命令】
+unique int       g_nIOCommand;           // Accept I/O commands【接受I/O命令】
+unique int       g_nBadShift;            // Accept shift out of range 1..31【接受超出范围的换档】
+unique int       g_nExtraPrefix;         // Accept superfluous prefixes【接受多余的前缀】
+unique int       g_nLockedBus;           // Accept LOCK prefixes【接受锁定前缀】
+unique int       g_nStackAlign;          // Accept unaligned stack operations【接受未对齐的堆栈操作】
+unique int       g_nIsWindowsNt;         // When checking for dangers, assume NT
 
-int    Assemble(unsigned char *cmd,ulong ip,t_asmmodel *model,int attempt,
-         int constsize,unsigned char *errtext);
-int    Checkcondition(int code,ulong flags);
-int    Decodeaddress(ulong addr,unsigned char *symb,int nsymb,unsigned char *comment);
-ulong  Disasm(unsigned char *src,ulong srcsize,ulong srcip,
-         t_disasm *disasm,int disasmmode);
-ulong  Disassembleback(unsigned char *block,ulong base,ulong size,ulong ip,int n);
-ulong  Disassembleforward(unsigned char *block,ulong base,ulong size,ulong ip,int n);
-int    Isfilling(ulong addr,unsigned char *data,ulong size,ulong align);
-int    Print3dnow(unsigned char *s,unsigned char *f);
-int    Printfloat10(unsigned char *s,long double ext);
-int    Printfloat4(unsigned char *s,float f);
-int    Printfloat8(unsigned char *s,double d);
+int Assemble(unsigned char *cmd, ulong ip,
+	t_asmmodel *model,
+	int attempt,
+	int constsize,
+	unsigned char *errtext);
+
+int Checkcondition(int code,
+	ulong flags);
+
+int Decodeaddress(ulong addr,
+	unsigned char *symb,
+	int nsymb,
+	unsigned char *comment);
+
+/*
+反汇编
+szHex：需要翻译成汇编指令的十六进制文本
+ulHexLen：需要翻译成汇编指令的十六进制文本的长度
+ulHexAddress：当前汇编指令的地址，有的跳转指令需要用到
+pDisasmInfo：反汇编信息
+nDisasmMode：反汇编模式
+*/
+ulong Disasm(unsigned char *szHex,
+	ulong ulHexLen,
+	ulong ulHexAddress,
+	t_disasm *pDisasmInfo,
+	int nDisasmMode);
+
+ulong Disassembleback(unsigned char *block, ulong base,
+	ulong size,
+	ulong ip,
+	int n);
+
+ulong Disassembleforward(unsigned char *block,
+	ulong base,
+	ulong size,
+	ulong ip,
+	int n);
+
+int Isfilling(ulong addr,
+	unsigned char *data,
+	ulong size,
+	ulong align);
+
+int Print3dnow(unsigned char *s,
+	unsigned char *f);
+
+int Printfloat10(unsigned char *s,
+	long double ext);
+
+int Printfloat4(unsigned char *s,
+	float f);
+
+int Printfloat8(unsigned char *s,
+	double d);
 

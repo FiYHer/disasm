@@ -35,15 +35,40 @@
 //#include "disasm.c"
 
 
+/*
+55 8B EC 51 C6 45 FF 00 50 64 A1 30 00 00 00 3E 8A 40 02 88 45 FF 58 80 7D FF 00 6A 00 6A 00 74
+07 68 F8 20 D0 00 EB 05 68 FC 20 D0 00 6A 00 FF 15 34 20 D0 00 68 00 21 D0 00 FF 15 A8 20 D0 00
+83 C4 04 33 C0 8B E5 5D C3
+
+*/
+
+void AnalyseAsm()
+{
+	int nBaseAddress = 0xa51000;
+	int nIndex = 0;
+	char szBuffer[] = "\x55\x8B\xEC\x51\xC6\x45\xFF\x00\x50\x64\xA1\x30\x00\x00\x00\x3E\x8A\x40\x02\x88\x45\xFF\x58\x80\x7D\xFF\x00\x6A\x00\x6A\x00\x74\x07\x68\xF8\x20\xD0\x00\xEB\x05\x68\xFC\x20\xD0\x00\x6A\x00\xFF\x15\x34\x20\xD0\x00\x68\x00\x21\xD0\x00\xFF\x15\xA8\x20\xD0\x00\x83\xC4\x04\x33\xC0\x8B\xE5\x5D\xC3";
+	
+	while (1)
+	{
+		char* pBuf = szBuffer + nIndex;
+			
+		t_disasm stAsm;
+		ulong nLen = Disasm(pBuf, 20, nBaseAddress + nIndex, &stAsm, DISASM_FILE);
+		printf("%2i  %-20s  %-24s\n", nLen, stAsm.uszDump, stAsm.uszResult);
+		nIndex += nLen;
+	}
+	getchar();
+}
 
 void main(void) 
 {                      // Old form. So what?
-  int i,j,n;
-  ulong l;
-  unsigned char *pasm;
-  t_disasm da;
-  t_asmmodel am;
-  unsigned char s[TEXTLEN],errtext[TEXTLEN];
+	AnalyseAsm();
+	int i, j, n;
+	ulong l;
+	unsigned char *pasm;
+	t_disasm da;
+	t_asmmodel am;
+	unsigned char s[TEXTLEN], errtext[TEXTLEN];
 
   memset(&da,0,sizeof(t_disasm));
   memset(&am,0,sizeof(t_asmmodel));
@@ -62,26 +87,26 @@ void main(void)
     10,0x400000,&da,DISASM_CODE);
   printf("%3i  %-24s  %-24s   (MASM)\n",l,da.dump,da.result);
 */
-	ideal=0; lowercase=1; putdefseg=0;
+	g_nIdeal=0; g_nLowerCase=1; g_nPutDefSeg=0;
 	l=Disasm("\x8b\x5d\x0c\x29\x75\x10\x8d\x4e\x01\x00",
    9,0x40e9a5,&da,DISASM_CODE);
-  printf("%3i  %-24s  %-24s   (MASM)\n",l,da.dump,da.result);
+  printf("%3i  %-24s  %-24s   (MASM)\n",l,da.uszDump,da.uszResult);
 
   // ADD [475AE0],1 IDEAL mode, uppercase, show default segment
-  ideal=1; lowercase=0; putdefseg=1;
+  g_nIdeal=1; g_nLowerCase=0; g_nPutDefSeg=1;
   l=Disasm("\x81\x05\xE0\x5A\x47\x00\x01\x00\x00\x00",
     10,0x400000,&da,DISASM_CODE);
-  printf("%3i  %-24s  %-24s   (IDEAL)\n",l,da.dump,da.result);
+  printf("%3i  %-24s  %-24s   (IDEAL)\n",l,da.uszDump,da.uszResult);
 
   // CALL 45187C
   l=Disasm("\xE8\x1F\x14\x00\x00",
     5,0x450458,&da,DISASM_CODE);
-  printf("%3i  %-24s  %-24s   jmpconst=%08X\n",l,da.dump,da.result,da.jmpconst);
+  printf("%3i  %-24s  %-24s   jmpconst=%08X\n",l,da.uszDump,da.uszResult,da.ulJmpConst);
 
   // JNZ 450517
   l=Disasm("\x75\x72",
     2,0x4504A3,&da,DISASM_CODE);
-  printf("%3i  %-24s  %-24s   jmpconst=%08X\n",l,da.dump,da.result,da.jmpconst);
+  printf("%3i  %-24s  %-24s   jmpconst=%08X\n",l,da.uszDump,da.uszResult,da.ulJmpConst);
 
   // Demonstration of Assembler.
   printf("\nAssembler:\n");
@@ -91,14 +116,14 @@ void main(void)
   printf("%s:\n",pasm);
   j=Assemble(pasm,0x400000,&am,0,0,errtext);
   n=sprintf(s,"%3i  ",j);
-  for (i=0; i<j; i++) n+=sprintf(s+n,"%02X ",am.code[i]);
+  for (i=0; i<j; i++) n+=sprintf(s+n,"%02X ",am.uszCode[i]);
   if (j<=0) sprintf(s+n,"  error=\"%s\"",errtext);
   printf("%s\n",s);
 
   // Then variant with 8-bit immediate constant.
   j=Assemble(pasm,0x400000,&am,0,2,errtext);
   n=sprintf(s,"%3i  ",j);
-  for (i=0; i<j; i++) n+=sprintf(s+n,"%02X ",am.code[i]);
+  for (i=0; i<j; i++) n+=sprintf(s+n,"%02X ",am.uszCode[i]);
   if (j<=0) sprintf(s+n,"  error=\"%s\"",errtext);
   printf("%s\n",s);
 
@@ -107,7 +132,7 @@ void main(void)
   printf("%s:\n",pasm);
   j=Assemble(pasm,0x400000,&am,0,4,errtext);
   n=sprintf(s,"%3i  ",j);
-  for (i=0; i<j; i++) n+=sprintf(s+n,"%02X ",am.code[i]);
+  for (i=0; i<j; i++) n+=sprintf(s+n,"%02X ",am.uszCode[i]);
   if (j<=0) sprintf(s+n,"  error=\"%s\"",errtext);
   printf("%s\n",s);
 
