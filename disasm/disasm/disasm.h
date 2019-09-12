@@ -59,12 +59,12 @@
 #define PR             0x80            // Protected command【受保护的命令】
 #define WP             0x81            // I/O command with bit W【操作数大小的I/O命令】
 
-// All possible types of operands in 80x86. A bit more than you expected, he?
-#define NNN            0               // No operand
-#define REG            1               // Integer register in Reg field
-#define RCM            2               // Integer register in command byte
-#define RG4            3               // Integer 4-byte register in Reg field
-#define RAC            4               // Accumulator (AL/AX/EAX, implicit)
+// All possible types of operands in 80x86. A bit more than you expected, he?【操作数类型】
+#define NNN            0               // No operand【没有操作数】
+#define REG            1               // Integer register in Reg field【REG字段中的整数寄存器】
+#define RCM            2               // Integer register in command byte【命令字节中的整数寄存器】
+#define RG4            3               // Integer 4-byte register in Reg field【REG字段中的整数4字节寄存器】
+#define RAC            4               // Accumulator (AL/AX/EAX, implicit)【累加器】
 #define RAX            5               // AX (2-byte, implicit)
 #define RDX            6               // DX (16-bit implicit port address)
 #define RCL            7               // Implicit CL register (for shifts)
@@ -151,15 +151,15 @@ typedef struct t_addrdec
 
 typedef struct t_cmddata 
 {
-	ulong          ulMask;               // Mask for first 4 bytes of the command【命令的前4个字节的掩码】
-	ulong          ulCode;               // Compare masked bytes with this【】
-	unsigned char  ucLen;                // Length of the main command code【主命令代码的长度】
-	unsigned char  ucBits;               // Special bits within the command【命令中的特殊位】
-	unsigned char  ucArg1;				 // Types of possible arguments1
-	unsigned char  ucArg2;				 // Types of possible arguments2
-	unsigned char  ucArg3;				 // Types of possible arguments3
-	unsigned char  ucType;               // C_xxx + additional information【附加信息】
-	unsigned char  *uszName;             // Symbolic name for this command【此命令的符号名】
+	ulong          ulMask;           // Mask for first 4 bytes of the command【命令的前4个字节的掩码】
+	ulong          ulCode;           // Compare masked bytes with this【操作码】
+	unsigned char  ucLen;            // Length of the main command code【操作码的长度】
+	unsigned char  ucBits;           // Special bits within the command【命令中的特殊位】
+	unsigned char  ucArg1;			 // Types of possible arguments1
+	unsigned char  ucArg2;			 // Types of possible arguments2
+	unsigned char  ucArg3;			 // Types of possible arguments3
+	unsigned char  ucType;           // C_xxx + additional information【附加信息】
+	unsigned char  *uszName;         // Symbolic name for this command【此命令的符号名】
 } t_cmddata;
 
 /*Initialized constant data structures used by all programs from assembler

@@ -50,11 +50,14 @@ void AnalyseAsm()
 	
 	while (1)
 	{
+		if(nIndex >= sizeof(szBuffer)/sizeof(char))
+			break;
+
 		char* pBuf = szBuffer + nIndex;
 			
 		t_disasm stAsm;
 		ulong nLen = Disasm(pBuf, 20, nBaseAddress + nIndex, &stAsm, DISASM_FILE);
-		printf("%2i  %-20s  %-24s\n", nLen, stAsm.uszDump, stAsm.uszResult);
+		printf("%2i  %-20s  %-24s	%-20s\n", nLen, stAsm.uszDump, stAsm.uszResult,stAsm.uszComment);
 		nIndex += nLen;
 	}
 	getchar();

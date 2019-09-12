@@ -679,12 +679,12 @@ const t_cmddata cstCmdData[] = {
   { 0x00FFFF, 0x00C40F, 2,00,  RMX,RR4,IM1, C_MMX + 2,        "PINSRW" },
   { 0x00FFFF, 0x0020CD, 2,00,  VXD,NNN,NNN, C_CAL + C_RARE + 0, "VxDCall" },
   // Pseudocommands used by Assembler for masked search only.
-  { 0x0000F0, 0x000070, 1,CC,  JOB,NNN,NNN, C_JMC + 0,        "JCC" },
-  { 0x00F0FF, 0x00800F, 2,CC,  JOW,NNN,NNN, C_JMC + 0,        "JCC" },
-  { 0x00F0FF, 0x00900F, 2,CC,  MR1,NNN,NNN, C_CMD + 1,        "SETCC" },
-  { 0x00F0FF, 0x00400F, 2,CC,  REG,MRG,NNN, C_CMD + 0,        "CMOVCC" },
-  // End of command table.
-  { 0x000000, 0x000000, 0,00,  NNN,NNN,NNN, C_CMD + 0,        "" }
+{ 0x0000F0, 0x000070, 1,CC,  JOB,NNN,NNN, C_JMC + 0,        "JCC" },
+{ 0x00F0FF, 0x00800F, 2,CC,  JOW,NNN,NNN, C_JMC + 0,        "JCC" },
+{ 0x00F0FF, 0x00900F, 2,CC,  MR1,NNN,NNN, C_CMD + 1,        "SETCC" },
+{ 0x00F0FF, 0x00400F, 2,CC,  REG,MRG,NNN, C_CMD + 0,        "CMOVCC" },
+// End of command table.
+{ 0x000000, 0x000000, 0,00,  NNN,NNN,NNN, C_CMD + 0,        "" }
 };
 
 const t_cmddata cstVxDCmd =               // Decoding of VxD calls (Win95/98)
